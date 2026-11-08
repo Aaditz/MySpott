@@ -1,36 +1,19 @@
-
-# Python
-__pycache__/
-*.py[cod]
-*.pyd
-
 # Virtual environment
 .venv/
 venv/
-env/
 
-# Environment variables and secrets
-.env
-.env.*
-!.env.example
-
-# Flask
-instance/
-*.sqlite
-*.db
-
-# IDE
-.idea/
-.vscode/
-
-# Logs
-*.log
-
-# Testing
+# Python
+__pycache__/
+*.pyc
 .pytest_cache/
-.coverage
-htmlcov/
 
-# OS
-.DS_Store
-Thumbs.db
+# Secrets and local settings (NEVER commit these)
+.env
+
+# Editor
+.idea/
+
+# Local data and logs
+instance/
+*.log
+*.sqlite3
