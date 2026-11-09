@@ -56,6 +56,9 @@ def test_real_secret_key_is_accepted_in_production():
             "SECRET_KEY": "a" * 64,
             "ENVIRONMENT": "production",
             "SQLALCHEMY_DATABASE_URI": GOOD_DB,
+            "MAIL_BACKEND": "smtp",
+            "MAIL_SERVER": "smtp.example.com",
+            "APP_BASE_URL": "https://myspott.example",
         }
     )
 

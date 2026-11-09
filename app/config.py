@@ -19,6 +19,27 @@ class ConfigError(RuntimeError):
 
 PLACEHOLDER_PREFIX = "change-me"
 
+MAIL_BACKENDS = ("console", "memory", "smtp")
+
+
+def _env_int(name, default):
+    """Read a whole number from the environment, with a clear error if it is not a number."""
+    value = os.environ.get(name)
+    if value is None or value.strip() == "":
+        return default
+    try:
+        return int(value)
+    except ValueError:
+        raise ConfigError(f"{name} must be a whole number, but it is '{value}'.") from None
+
+
+def _env_flag(name, default):
+    """Read a true/false setting from the environment."""
+    value = os.environ.get(name)
+    if value is None or value.strip() == "":
+        return default
+    return value.strip().lower() not in ("0", "false", "no", "off")
+
 
 class BaseConfig:
     APP_NAME = "MySpott"
@@ -38,6 +59,20 @@ class BaseConfig:
     REMEMBER_COOKIE_HTTPONLY = True
     REMEMBER_COOKIE_SAMESITE = "Lax"
 
+    # The public address of the site. Emailed links are built from THIS, never from the
+    # incoming request, so nobody can trick the site into sending links to a fake address.
+    APP_BASE_URL = os.environ.get("APP_BASE_URL", "http://127.0.0.1:5000").strip().rstrip("/")
+
+    # Email: "console" prints emails in the Terminal, "smtp" sends them through a real mail
+    # server, "memory" keeps them in a list (used by automated tests).
+    MAIL_BACKEND = os.environ.get("MAIL_BACKEND", "console").strip().lower()
+    MAIL_FROM = os.environ.get("MAIL_FROM", "MySpott <no-reply@myspott.local>")
+    MAIL_SERVER = os.environ.get("MAIL_SERVER")
+    MAIL_PORT = _env_int("MAIL_PORT", 587)
+    MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
+    MAIL_USE_TLS = _env_flag("MAIL_USE_TLS", True)
+
 
 class DevelopmentConfig(BaseConfig):
     ENVIRONMENT = "development"
@@ -51,6 +86,10 @@ class TestingConfig(BaseConfig):
     SECRET_KEY = "testing-only-secret-key"
     # Tests use their OWN database, because they erase everything in it.
     SQLALCHEMY_DATABASE_URI = os.environ.get("TEST_DATABASE_URL")
+    # Tests never print or send real email, and use fixed addresses.
+    MAIL_BACKEND = "memory"
+    MAIL_FROM = "MySpott <no-reply@myspott.test>"
+    APP_BASE_URL = "http://localhost"
 
 
 class ProductionConfig(BaseConfig):
@@ -112,3 +151,14 @@ def validate_config(app_config):
                 "TEST_DATABASE_URL must point to a database whose name ends with '_test', "
                 "because tests erase all data in it."
             )
+
+    mail_backend = app_config.get("MAIL_BACKEND", "console")
+    if mail_backend not in MAIL_BACKENDS:
+        raise ConfigError("MAIL_BACKEND must be one of: console, memory, smtp.")
+    if mail_backend == "smtp" and not app_config.get("MAIL_SERVER"):
+        raise ConfigError("MAIL_SERVER is missing. It is required when MAIL_BACKEND is 'smtp'.")
+    if environment == "production":
+        if mail_backend != "smtp":
+            raise ConfigError("In production MAIL_BACKEND must be 'smtp', so real emails are sent.")
+        if not str(app_config.get("APP_BASE_URL", "")).startswith("https://"):
+            raise ConfigError("In production APP_BASE_URL must start with 'https://'.")
