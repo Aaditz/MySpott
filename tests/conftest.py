@@ -3,12 +3,22 @@
 import pytest
 
 from app import create_app
+from app.extensions import db
 
 
 @pytest.fixture()
 def app():
-    """A MySpott app using the 'testing' configuration."""
-    return create_app("testing")
+    """A MySpott app on the TEST database, with fresh empty tables for each test.
+
+    validate_config() guarantees the test database name ends with '_test', so
+    the cleanup below can never erase your development data.
+    """
+    app = create_app("testing")
+    with app.app_context():
+        db.create_all()
+        yield app
+        db.session.remove()
+        db.drop_all()
 
 
 @pytest.fixture()

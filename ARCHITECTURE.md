@@ -46,3 +46,14 @@ Phase 2 and `mobile/` by Expo in Phase 13.
 - Secrets only in environment variables; `.env` is git-ignored
 - App refuses to start if SECRET_KEY is missing, or a placeholder in production
 - Owner phone numbers never appear in public responses (Phase 10)
+- 
+## Database (added in Phase 2)
+- Local PostgreSQL for development (database `myspott_dev`), a separate `myspott_test` for automated tests.
+- SQLAlchemy models live in `app/models/`; shared extension objects in `app/extensions.py`.
+- Schema changes are made only through migrations (`flask --app run db migrate` / `upgrade`); the `migrations/`
+  folder is committed to Git.
+- Constraint and index names follow a fixed naming convention so migrations stay clean.
+- `users` table: id, name, email (unique, stored lowercase), password_hash (never plain text), role
+  (seeker / owner / admin, enforced by a database check), account_status (active / suspended),
+  email_verified_at, whatsapp_e164, created_at, updated_at, last_login_at.
+- Settings: DATABASE_URL and TEST_DATABASE_URL in `.env` (never committed). The app refuses to start without them.

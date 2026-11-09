@@ -1,8 +1,8 @@
 # MySpott: To Do
 
 - [x] Phase 0: SRS review and plan
-- [ ] Phase 1: Foundation (tools, Flask skeleton, tests, docs, first commit)
-- [ ] Phase 2: Database foundation (PostgreSQL, SQLAlchemy, migrations, User model)
+- [x] Phase 1: Foundation
+- [x] Phase 2: Database foundation
 - [ ] Phase 3: Authentication (register, login, logout, verify email, resend, password reset, roles)
 - [ ] Phase 4: Web UI foundation (design system, layout, navigation, auth pages)
 - [ ] Phase 5: Property core (models, create/edit/pause/publish, owner dashboard)
@@ -17,6 +17,7 @@
 - [ ] Phase 14: iOS app
 - [ ] Phase 15: End-to-end testing and release
 
-## Open decisions (see ARCHITECTURE.md)
-- Image storage provider, email provider, hosting provider
+## Open decisions
+- Email approach for development (see Phase 3) and email provider for production
+- Image storage provider, hosting provider
 - Exact Kristu Jayanti College coordinates and service radius (Phase 9)
