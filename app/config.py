@@ -5,6 +5,7 @@ Secrets are never written in source code.
 """
 
 import os
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 
@@ -26,6 +27,11 @@ class BaseConfig:
     TESTING = False
     SECRET_KEY = os.environ.get("SECRET_KEY")
 
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # Quietly replaces database connections that went stale.
+    SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
+
 
 class DevelopmentConfig(BaseConfig):
     ENVIRONMENT = "development"
@@ -37,6 +43,8 @@ class TestingConfig(BaseConfig):
     TESTING = True
     # Tests use a fixed fake key so they never depend on your real .env file.
     SECRET_KEY = "testing-only-secret-key"
+    # Tests use their OWN database, because they erase everything in it.
+    SQLALCHEMY_DATABASE_URI = os.environ.get("TEST_DATABASE_URL")
 
 
 class ProductionConfig(BaseConfig):
@@ -63,12 +71,35 @@ def resolve_config(name=None):
 
 
 def validate_config(app_config):
-    """Stop the app at startup with a clear message if a critical setting is bad."""
+    """Stop the app at startup with a clear message if a critical setting is bad.
+
+    Error messages never include the database address, because it contains a password.
+    """
+    environment = app_config.get("ENVIRONMENT")
+
     secret = app_config.get("SECRET_KEY")
     if not secret:
         raise ConfigError(
             "SECRET_KEY is missing. Copy .env.example to .env and set SECRET_KEY "
             "(see the instructions in the project guide)."
         )
-    if app_config.get("ENVIRONMENT") == "production" and secret.startswith(PLACEHOLDER_PREFIX):
+    if environment == "production" and secret.startswith(PLACEHOLDER_PREFIX):
         raise ConfigError("SECRET_KEY still has the placeholder value. Set a real random key.")
+
+    variable = "TEST_DATABASE_URL" if environment == "testing" else "DATABASE_URL"
+    database_uri = app_config.get("SQLALCHEMY_DATABASE_URI")
+    if not database_uri:
+        raise ConfigError(
+            f"{variable} is missing. Add it to your .env file (see .env.example)."
+        )
+    if not database_uri.startswith("postgresql"):
+        raise ConfigError(
+            f"{variable} must be a PostgreSQL address starting with 'postgresql+psycopg://'."
+        )
+    if environment == "testing":
+        database_name = urlparse(database_uri).path.strip("/")
+        if not database_name.endswith("_test"):
+            raise ConfigError(
+                "TEST_DATABASE_URL must point to a database whose name ends with '_test', "
+                "because tests erase all data in it."
+            )

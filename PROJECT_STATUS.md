@@ -1,18 +1,17 @@
 # MySpott: Project Status
 
-**Last updated:** 2026-11-08
+**Last updated:** 2026-11-09
 
 ## Current phase
-Phase 1: Project foundation
+Phase 3: Authentication (not started)
 
 ## Completed
 - Phase 0: SRS review, architecture and roadmap agreed
-- Phase 1, Step 1: Python, Git and PyCharm project set up (Z:\Arbeit\MySpott)
-- Phase 1, Step 2: Flask app factory, configuration, health endpoint, placeholder home page
-- Phase 1, Step 3: automated tests, documentation files, first Git commit (pending developer confirmation)
+- Phase 1: Foundation (Flask app factory, configuration, health endpoint, tests, docs, Git/GitHub)
+- Phase 2: Database foundation (local PostgreSQL, SQLAlchemy, Flask-Migrate, User model, first migration)
 
 ## Next
-- Phase 2: database foundation (PostgreSQL, SQLAlchemy, migrations, User model)
+- Phase 3: register, login, logout, email verification, password reset, roles
 
 ## Known issues
 - None recorded.
