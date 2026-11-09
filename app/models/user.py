@@ -2,6 +2,7 @@
 
 from datetime import datetime, timezone
 
+from flask_login import UserMixin
 from sqlalchemy.orm import validates
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -12,7 +13,7 @@ def utc_now():
     return datetime.now(timezone.utc)
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     __tablename__ = "users"
 
     ROLE_SEEKER = "seeker"
@@ -54,6 +55,11 @@ class User(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    @property
+    def is_active(self):
+        """Flask-Login refuses to log in a user whose is_active is False (suspended accounts)."""
+        return self.account_status == self.STATUS_ACTIVE
 
     @property
     def is_email_verified(self):

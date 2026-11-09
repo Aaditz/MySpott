@@ -1,5 +1,6 @@
 """Shared extension objects. They are connected to the app in create_app()."""
 
+from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
@@ -16,3 +17,4 @@ NAMING_CONVENTION = {
 
 db = SQLAlchemy(metadata=MetaData(naming_convention=NAMING_CONVENTION))
 migrate = Migrate()
+login_manager = LoginManager()

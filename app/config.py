@@ -32,6 +32,12 @@ class BaseConfig:
     # Quietly replaces database connections that went stale.
     SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
 
+    # Login cookies: not readable by JavaScript, not sent along with requests from other sites.
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "Lax"
+    REMEMBER_COOKIE_HTTPONLY = True
+    REMEMBER_COOKIE_SAMESITE = "Lax"
+
 
 class DevelopmentConfig(BaseConfig):
     ENVIRONMENT = "development"
@@ -49,6 +55,9 @@ class TestingConfig(BaseConfig):
 
 class ProductionConfig(BaseConfig):
     ENVIRONMENT = "production"
+    # Login cookies are only ever sent over HTTPS in production.
+    SESSION_COOKIE_SECURE = True
+    REMEMBER_COOKIE_SECURE = True
 
 
 CONFIG_BY_NAME = {

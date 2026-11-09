@@ -5,7 +5,7 @@ import logging
 from flask import Flask
 
 from .config import resolve_config, validate_config
-from .extensions import db, migrate
+from .extensions import db, login_manager, migrate
 
 
 def create_app(config_name=None):
@@ -35,10 +35,19 @@ def _configure_logging(app):
 
 def _init_extensions(app):
     # Importing the models makes every table known to SQLAlchemy and to migrations.
-    from . import models  # noqa: F401
+    from .models import User
 
     db.init_app(app)
     migrate.init_app(app, db)
+    login_manager.init_app(app)
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        """Turns the user id stored in the login cookie back into a User (or nobody)."""
+        try:
+            return db.session.get(User, int(user_id))
+        except (TypeError, ValueError):
+            return None
 
 
 def _register_blueprints(app):

@@ -4,6 +4,7 @@ import pytest
 
 from app import create_app
 from app.extensions import db
+from app.models import User
 
 
 @pytest.fixture()
@@ -25,3 +26,17 @@ def app():
 def client(app):
     """A fake browser that can call the app without starting a server."""
     return app.test_client()
+
+
+@pytest.fixture()
+def user_factory(app):
+    """Returns a function that builds a valid (unsaved) user. Override any field you need."""
+
+    def build(**overrides):
+        values = {"name": "Ada Lovelace", "email": "ada@example.com"}
+        values.update(overrides)
+        user = User(**values)
+        user.set_password("a-test-password")
+        return user
+
+    return build
