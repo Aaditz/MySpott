@@ -1,5 +1,6 @@
 """The User model: every person with a MySpott account (seeker, owner or admin)."""
 
+import hashlib
 from datetime import datetime, timezone
 
 from flask_login import UserMixin
@@ -55,6 +56,35 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    # ------------------------------------------------------------ login cookies
+
+    @property
+    def session_fingerprint(self):
+        """A short fingerprint of the current password hash.
+
+        It is stored in the login cookie next to the user id. When the password changes,
+        the fingerprint changes too, so every login cookie issued before the change stops
+        working at once, on every device. It cannot be turned back into the password.
+        """
+        return hashlib.sha256(self.password_hash.encode("utf-8")).hexdigest()[:16]
+
+    def get_id(self):
+        """What Flask-Login keeps in the login cookie: 'user id:fingerprint'."""
+        return f"{self.id}:{self.session_fingerprint}"
+
+    @staticmethod
+    def parse_session_id(session_id):
+        """Split the cookie text back into (user id, fingerprint).
+
+        Returns None for anything that does not look exactly right.
+        """
+        if not isinstance(session_id, str) or session_id.count(":") != 1:
+            return None
+        user_id, fingerprint = session_id.split(":")
+        if not user_id.isascii() or not user_id.isdigit() or len(user_id) > 18 or not fingerprint:
+            return None
+        return int(user_id), fingerprint
 
     @property
     def is_active(self):

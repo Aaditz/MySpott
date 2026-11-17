@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}MySpott{% endblock %}</title>
+  {# Temporary plain styling. The real MySpott design arrives in Phase 4. #}
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 34rem; margin: 0 auto; padding: 1rem; line-height: 1.5; }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding-bottom: .75rem; border-bottom: 1px solid #ddd; }
+    nav { display: flex; align-items: center; gap: .75rem; }
+    form.inline { display: inline; margin: 0; }
+    label { display: block; margin-top: 1rem; font-weight: 600; }
+    input[type=text], input[type=email], input[type=password] { width: 100%; padding: .6rem; font-size: 1rem; box-sizing: border-box; }
+    button { padding: .6rem 1rem; font-size: 1rem; cursor: pointer; }
+    .error { color: #b00020; margin: .25rem 0 0; }
+    .notice, .flash { padding: .6rem .8rem; border-radius: .4rem; background: #f3f3f3; margin: .75rem 0; }
+    .flash.success { background: #e6f4ea; }
+    .flash.warning { background: #fff4e5; }
+    .choice { font-weight: 400; margin-top: .4rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="{{ url_for('web.home') }}"><strong>MySpott</strong></a>
+    <nav>
+      {% if current_user.is_authenticated %}
+        <span>Hi, {{ current_user.name }}</span>
+        <form method="post" action="{{ url_for('auth.logout') }}" class="inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit">Log out</button>
+        </form>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}">Log in</a>
+        <a href="{{ url_for('auth.register') }}">Sign up</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  {% if current_user.is_authenticated and not current_user.is_email_verified %}
+    <div class="notice">
+      <p>Please confirm your email address. We sent you a link when you signed up.</p>
+      {% include "auth/_resend_form.html" %}
+    </div>
+  {% endif %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <p class="flash {{ category }}" role="status">{{ message }}</p>
+    {% endfor %}
+  {% endwith %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

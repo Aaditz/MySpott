@@ -1,8 +1,11 @@
 """Shared extension objects. They are connected to the app in create_app()."""
 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import MetaData
 
 # Fixed naming rules for database constraints and indexes. Without them the
@@ -18,3 +21,7 @@ NAMING_CONVENTION = {
 db = SQLAlchemy(metadata=MetaData(naming_convention=NAMING_CONVENTION))
 migrate = Migrate()
 login_manager = LoginManager()
+# Protects every form that changes data from being submitted by another website.
+csrf = CSRFProtect()
+# Slows down people (or programs) that hammer the forms. Limits are declared on each page.
+limiter = Limiter(key_func=get_remote_address)
