@@ -29,4 +29,4 @@
 ## Open decisions
 - Brand look: colours, logo, tone (needed at the start of Phase 4)
 - Image storage provider, hosting provider
-- Exact Kristu Jayanti College coordinates and service radius (Phase 9)
+- Default map area for first-time visitors, and how "distance to a place you choose" works (Phase 9)

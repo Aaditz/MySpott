@@ -25,3 +25,15 @@
     tests/           conftest.py, helpers.py and one test file per area
     migrations/      database migrations (committed to Git)
     docs/            status, log, to-do, architecture, testing
+
+
+## Product scope (decision after Phase 3)
+- MySpott is for anyone looking to rent a home, not only students. The original SRS focused on students
+  near one college; this is a deliberate change from the SRS.
+- No single campus or service area is built into the product. Listings carry their own address,
+  locality, city and map position, and search works by place and map area.
+- Kristu Jayanti College was the original idea. It can be one of many places people search around,
+  but the product does not depend on it.
+- "Distance to the college" becomes "distance to a place you choose" (workplace, college, metro
+  station, any point on the map). Planned for Phase 9, shown as straight-line distance and labelled that way.
+- Roles stay seeker / owner / admin. "Seeker" means anyone looking for a home.
