@@ -74,6 +74,12 @@ class BaseConfig:
     MAIL_USE_TLS = _env_flag("MAIL_USE_TLS", True)
 
 
+    # Rate limiting (see app/web/rate_limits.py). Counters live in memory and start again from
+    # zero when the server restarts. A shared store (Redis) is chosen when we deploy.
+    RATELIMIT_ENABLED = _env_flag("RATELIMIT_ENABLED", True)
+    RATELIMIT_STORAGE_URI = os.environ.get("RATELIMIT_STORAGE_URI", "memory://")
+    RATELIMIT_HEADERS_ENABLED = True
+
 class DevelopmentConfig(BaseConfig):
     ENVIRONMENT = "development"
     DEBUG = True
@@ -162,3 +168,5 @@ def validate_config(app_config):
             raise ConfigError("In production MAIL_BACKEND must be 'smtp', so real emails are sent.")
         if not str(app_config.get("APP_BASE_URL", "")).startswith("https://"):
             raise ConfigError("In production APP_BASE_URL must start with 'https://'.")
+        if environment == "production" and not app_config.get("RATELIMIT_ENABLED", True):
+            raise ConfigError("In production RATELIMIT_ENABLED must stay on (true).")

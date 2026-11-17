@@ -1,6 +1,7 @@
 """Shared test setup. Fixtures defined here are available to every test file."""
 
 import pytest
+from flask import g
 
 from app import create_app
 from app.extensions import db
@@ -15,11 +16,24 @@ def app():
     the cleanup below can never erase your development data.
     """
     app = create_app("testing")
+
+    @app.before_request
+    def reset_per_request_globals():
+        # A test keeps one app context open the whole time, so Flask's per-request scratchpad
+        # (`g`) would carry over from one request to the next. A real browser never gets that:
+        # every request starts with an empty scratchpad. Without this reset, a login or CSRF
+        # token cached by one request leaks into the next, even into a different test browser.
+        g.pop("csrf_token", None)
+        g.pop("_login_user", None)
+
     with app.app_context():
         db.create_all()
         yield app
         db.session.remove()
         db.drop_all()
+        # Every test builds its own app, and each app opens its own pool of database
+        # connections. Closing them here stops them piling up until PostgreSQL runs out.
+        db.engine.dispose()
 
 
 @pytest.fixture()

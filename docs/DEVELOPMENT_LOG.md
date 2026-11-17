@@ -1,22 +1,19 @@
-# MySpott: Development Log
 
-## 2026-11-08
-- Reviewed the combined SRS and playbook; agreed stack: Flask, PostgreSQL, Jinja2/Bootstrap, Expo.
-- Launch campus: Kristu Jayanti College.
-- Created Flask app factory (`app/__init__.py`), configuration with startup validation (`app/config.py`),
-  health endpoint (`/api/v1/health`), placeholder home page, `run.py`.
-- Issue: first run failed with "SECRET_KEY is missing" because the `.env` file did not exist.
-  Fixed by creating `.env` with a generated key. The startup check worked as designed.
-- Added pytest tests for the health endpoint, home page and configuration rules.
-- Added project documentation files.
-- 
-## 2026-11-09
-- Installed PostgreSQL locally; created user myspott_user and databases myspott_dev and myspott_test.
-- Added database settings with startup validation: DATABASE_URL and TEST_DATABASE_URL are required,
-  must be PostgreSQL, and the test database name must end with `_test` so tests can never touch dev data.
-- Added `app/extensions.py` (SQLAlchemy, Migrate, constraint naming convention) and the `User` model
-  (hashed passwords, lowercase emails, role and status checks, timestamps).
-- Added tests for configuration and the User model; all 24 tests passed.
-- Issue: tests failed with "TEST_DATABASE_URL is missing" because PowerShell commands had been pasted
-  into `.env` instead of settings. Fixed by rewriting `.env` as four plain NAME=value lines.
-- Created the first migration ("Create users table"), applied it to myspott_dev, and tested downgrade/upgrade.
+## Phase 3: Authentication
+- Added Flask-Login (login cookies hold "user id:password fingerprint", so a password change or a
+  suspension ends existing logins), Flask-WTF (CSRF protection on every form) and Flask-Limiter.
+- Added the EmailToken table and the account service (register, authenticate, tokens, reset, create admin).
+  Tokens are random, only a hash is stored, links are one-time and expire (24 hours / 1 hour).
+- Added email sending with three modes: console (development), smtp (production), memory (tests).
+  Emailed links are built from APP_BASE_URL, never from the incoming request.
+- Added the pages: sign up, log in, log out, confirm email, resend, forgot password, reset password.
+  Links only SHOW a confirm button; pressing it does the change, so email scanners cannot use up a link.
+- Added access checks, friendly error pages, the create-admin / promote-admin commands and rate limits.
+- Issues met and fixed:
+  - a template was saved in the wrong folder (TemplateNotFound);
+  - test requests shared Flask's per-request scratchpad (`g`), reusing a stale CSRF token and a stale
+    login; fixed with a reset before each test request;
+  - tests opened more and more database connections until PostgreSQL refused new ones; fixed by closing
+    them after each test;
+  - the sign-up rate-limit test needed the same reset for every browser it creates.
+- End of phase: 189 tests passing, including one test that walks through the whole account journey.

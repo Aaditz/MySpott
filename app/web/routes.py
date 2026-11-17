@@ -1,8 +1,8 @@
-from flask import current_app
+from flask import render_template
 
 from . import web
 
 
 @web.get("/")
 def home():
-    return f"{current_app.config['APP_NAME']} is running."
+    return render_template("home.html")

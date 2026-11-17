@@ -5,10 +5,11 @@ call these functions, so the rules live in exactly one place.
 """
 
 import hashlib
+import math
 import secrets
 from datetime import timedelta
 
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -23,6 +24,9 @@ TOKEN_LIFETIMES = {
     EmailToken.PURPOSE_VERIFY_EMAIL: timedelta(hours=24),
     EmailToken.PURPOSE_RESET_PASSWORD: timedelta(minutes=60),
 }
+
+# After a confirmation email is sent, people must wait this long before asking for another.
+RESEND_COOLDOWN = timedelta(seconds=60)
 
 # People can sign up as seekers or owners. Admins are never created through sign-up.
 SIGNUP_ROLES = (User.ROLE_SEEKER, User.ROLE_OWNER)
@@ -68,6 +72,28 @@ def register_user(name, email, password, role=User.ROLE_SEEKER):
         raise ValidationError({"email": EMAIL_TAKEN_MESSAGE}) from None
     return user
 
+
+def create_admin(name, email, password):
+    """Create an administrator account (email already confirmed).
+
+    Only reachable from the command line (see app/cli.py), never from a web page.
+    The same checks as normal sign-up apply (valid email, strong enough password, no duplicates).
+    """
+    user = register_user(name, email, password, role=User.ROLE_SEEKER)
+    user.role = User.ROLE_ADMIN
+    user.email_verified_at = utc_now()
+    db.session.commit()
+    return user
+
+
+def promote_to_admin(email):
+    """Make an existing account an administrator. Command line only, like create_admin."""
+    user = _find_user_by_email(validation.normalise_email(email))
+    if user is None:
+        raise ValidationError({"email": "No account with this email address exists."})
+    user.role = User.ROLE_ADMIN
+    db.session.commit()
+    return user
 
 # ----------------------------------------------------------------------- login
 
@@ -129,6 +155,41 @@ def issue_token(user, purpose):
     )
     db.session.commit()
     return raw_token
+
+
+def is_token_usable(raw_token, purpose):
+    """True if the link would work right now. This does NOT use the token up."""
+    return _find_usable_token(raw_token, purpose) is not None
+
+
+def resend_wait_seconds(user, purpose):
+    """Seconds the user must still wait before another email may be sent (0 means go ahead)."""
+    latest = db.session.scalar(
+        select(func.max(EmailToken.created_at)).where(
+            EmailToken.user_id == user.id,
+            EmailToken.purpose == purpose,
+        )
+    )
+    if latest is None:
+        return 0
+    remaining = latest + RESEND_COOLDOWN - utc_now()
+    return max(0, math.ceil(remaining.total_seconds()))
+
+
+def start_password_reset(email):
+    """Prepare a password-reset email for this address.
+
+    Returns (user, raw_token) when an email should be sent, or None when it should not:
+    unknown address, suspended account, or a reset email was already sent a moment ago.
+    The website must give the SAME answer in every case, so nobody can use this form to
+    find out which addresses have accounts.
+    """
+    user = _find_user_by_email(validation.normalise_email(email))
+    if user is None or not user.is_active:
+        return None
+    if resend_wait_seconds(user, EmailToken.PURPOSE_RESET_PASSWORD) > 0:
+        return None
+    return user, issue_token(user, EmailToken.PURPOSE_RESET_PASSWORD)
 
 
 def verify_email(raw_token):

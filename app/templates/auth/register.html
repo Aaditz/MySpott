@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Create your account · MySpott{% endblock %}
+{% block content %}
+  <h1>Create your account</h1>
+  <form method="post" action="{{ url_for('auth.register') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <label for="name">Your name</label>
+    <input type="text" id="name" name="name" value="{{ form.name or '' }}" autocomplete="name" required maxlength="100">
+    {% if errors.name %}<p class="error">{{ errors.name }}</p>{% endif %}
+
+    <label for="email">Email address</label>
+    <input type="email" id="email" name="email" value="{{ form.email or '' }}" autocomplete="email" required maxlength="254">
+    {% if errors.email %}<p class="error">{{ errors.email }}</p>{% endif %}
+
+    <label for="password">Password (at least 8 characters)</label>
+    <input type="password" id="password" name="password" autocomplete="new-password" required minlength="8" maxlength="128">
+    {% if errors.password %}<p class="error">{{ errors.password }}</p>{% endif %}
+
+    <label>I am</label>
+    <label class="choice"><input type="radio" name="role" value="seeker" {% if form.role != 'owner' %}checked{% endif %}> Looking for a home</label>
+    <label class="choice"><input type="radio" name="role" value="owner" {% if form.role == 'owner' %}checked{% endif %}> An owner listing a home</label>
+    {% if errors.role %}<p class="error">{{ errors.role }}</p>{% endif %}
+
+    <p><button type="submit">Create account</button></p>
+  </form>
+  <p>Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+{% endblock %}

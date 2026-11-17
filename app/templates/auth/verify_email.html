@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Confirm your email · MySpott{% endblock %}
+{% block content %}
+  <h1>Confirm your email address</h1>
+  <p>Press the button to finish confirming your MySpott account.</p>
+  <form method="post" action="{{ url_for('auth.verify_email_submit', token=token) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit">Confirm my email address</button>
+  </form>
+{% endblock %}

@@ -8,16 +8,29 @@ From the project folder, with the virtual environment active:
 Tests run against the separate PostgreSQL database `myspott_test`. They erase and recreate its tables
 for every test, so never point TEST_DATABASE_URL at a development or production database.
 The app refuses to run tests if the database name does not end with `_test`.
+The full run takes a little over a minute, because the rate-limit tests make many real attempts.
 
 ## Results log
-| Date | Step | Test | Result |
-|------|------|------|--------|
-| 2026-11-08 | Phase 1, Step 2 | Manual: home page at http://127.0.0.1:5000/ | Passed |
-| 2026-11-09 | Phase 2, Step 2 | Automated: `python -m pytest` (24 tests: config, health, User model) | Passed: 24 passed |
-| 2026-11-09 | Phase 2, Step 3 | Migrations: init, migrate, upgrade, downgrade, upgrade; table checked in psql | Passed |
+| Phase | Test | Result |
+|-------|------|--------|
+| 1 | Manual: home page and /api/v1/health | Passed |
+| 2 | Automated: config, health, User model (24 tests); migrations up, down, up | Passed |
+| 3 | Automated: login support, email tokens, account service, validation, email sending, pages, access control, admin tools, rate limits, full account journey (189 tests in total) | Passed |
+| 3 | Manual: sign up, confirm email, log out, wrong password, forgot/reset password, other device logged out after reset, friendly 404 | Passed |
 
-## What the automated tests cover so far
-- Configuration: environment names, missing or placeholder secrets, database address rules, no password in error messages
-- Health endpoint, home page and 404 handling
-- User model: defaults, lowercase emails, duplicate emails (any capitalisation), password hashing,
-  invalid role rejected by the database, required name, updated_at changes on edit
+## What the automated tests cover
+- Configuration: environments, secrets, database, email, site address and rate-limit settings
+- Database models: User and EmailToken constraints, hashed passwords, lowercase emails
+- Account service: registration rules, login checks, one-time tokens, resend waiting time, password reset
+- Pages: sign up, log in, log out, confirmation, resend, forgot and reset password, CSRF refusals,
+  safe redirects, generic messages that reveal nothing about who has an account
+- Access control: owner/admin/confirmed-only pages, 403 and 404 pages (HTML and JSON)
+- Sessions: password change and suspension end existing logins
+- Command line: create-admin and promote-admin
+- Rate limits: login, sign-up, reset, resend, and the 429 page
+- One test walking through the whole account journey
+
+## Not covered yet
+- Real email delivery over SMTP (only tested against a stand-in server)
+- Behaviour behind a hosting proxy and with a shared rate-limit store (deployment, Phase 12)
+- Visual layout (Phase 4 onwards)

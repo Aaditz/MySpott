@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Link not valid · MySpott{% endblock %}
+{% block content %}
+  <h1>This link is not valid</h1>
+  <p>{{ message }}</p>
+  {% if new_link_url %}
+    <p><a href="{{ new_link_url }}">{{ new_link_label }}</a></p>
+  {% elif current_user.is_authenticated %}
+    {% if not current_user.is_email_verified %}
+      <p>You can ask for a new link with the button at the top of the page.</p>
+    {% endif %}
+  {% else %}
+    <p><a href="{{ url_for('auth.login') }}">Log in</a> and we can send you a new link.</p>
+  {% endif %}
+{% endblock %}
