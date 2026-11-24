@@ -3,55 +3,73 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0E7C86">
   <title>{% block title %}MySpott{% endblock %}</title>
-  {# Temporary plain styling. The real MySpott design arrives in Phase 4. #}
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 34rem; margin: 0 auto; padding: 1rem; line-height: 1.5; }
-    header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding-bottom: .75rem; border-bottom: 1px solid #ddd; }
-    nav { display: flex; align-items: center; gap: .75rem; }
-    form.inline { display: inline; margin: 0; }
-    label { display: block; margin-top: 1rem; font-weight: 600; }
-    input[type=text], input[type=email], input[type=password] { width: 100%; padding: .6rem; font-size: 1rem; box-sizing: border-box; }
-    button { padding: .6rem 1rem; font-size: 1rem; cursor: pointer; }
-    .error { color: #b00020; margin: .25rem 0 0; }
-    .notice, .flash { padding: .6rem .8rem; border-radius: .4rem; background: #f3f3f3; margin: .75rem 0; }
-    .flash.success { background: #e6f4ea; }
-    .flash.warning { background: #fff4e5; }
-    .choice { font-weight: 400; margin-top: .4rem; }
-  </style>
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </head>
 <body>
-  <header>
-    <a href="{{ url_for('web.home') }}"><strong>MySpott</strong></a>
-    <nav>
-      {% if current_user.is_authenticated %}
-        <span>Hi, {{ current_user.name }}</span>
-        <form method="post" action="{{ url_for('auth.logout') }}" class="inline">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button type="submit">Log out</button>
-        </form>
-      {% else %}
-        <a href="{{ url_for('auth.login') }}">Log in</a>
-        <a href="{{ url_for('auth.register') }}">Sign up</a>
-      {% endif %}
-    </nav>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="brand" href="{{ url_for('web.home') }}" aria-label="MySpott home">
+        <span class="brand__mark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="9.5" r="6.5" fill="currentColor"/>
+            <path d="M6.9 13.4 12 22.5l5.1-9.1z" fill="currentColor"/>
+            <circle cx="12" cy="9.5" r="2.5" fill="#0E7C86"/>
+          </svg>
+        </span>
+        <span class="brand__word"><span class="brand__my">My</span><span class="brand__spott">Spott</span></span>
+      </a>
+
+      <button type="button" class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="main-menu" aria-label="Open menu">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <nav class="nav" id="main-menu" data-nav-menu data-open="false" aria-label="Main">
+        {% if current_user.is_authenticated %}
+          <span class="nav__user">Hi, {{ current_user.name }}</span>
+          <form method="post" action="{{ url_for('auth.logout') }}" class="inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-secondary btn-sm">Log out</button>
+          </form>
+        {% else %}
+          <a class="nav__link" href="{{ url_for('auth.login') }}"{% if request.endpoint == 'auth.login' %} aria-current="page"{% endif %}>Log in</a>
+          <a class="btn btn-primary btn-sm" href="{{ url_for('auth.register') }}"{% if request.endpoint == 'auth.register' %} aria-current="page"{% endif %}>Sign up</a>
+        {% endif %}
+      </nav>
+    </div>
   </header>
 
-  {% if current_user.is_authenticated and not current_user.is_email_verified %}
-    <div class="notice">
-      <p>Please confirm your email address. We sent you a link when you signed up.</p>
-      {% include "auth/_resend_form.html" %}
-    </div>
-  {% endif %}
+  <div class="container messages">
+    {% if current_user.is_authenticated and not current_user.is_email_verified %}
+      <div class="notice">
+        <p>Please confirm your email address. We sent you a link when you signed up.</p>
+        {% include "auth/_resend_form.html" %}
+      </div>
+    {% endif %}
 
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% for category, message in messages %}
-      <p class="flash {{ category }}" role="status">{{ message }}</p>
-    {% endfor %}
-  {% endwith %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <p class="flash {{ category }}" role="status">{{ message }}</p>
+      {% endfor %}
+    {% endwith %}
+  </div>
 
-  <main>
+  <main id="main" class="container page">
     {% block content %}{% endblock %}
   </main>
+
+  <footer class="site-footer">
+    <div class="container">MySpott &middot; Find your spot</div>
+  </footer>
 </body>
 </html>

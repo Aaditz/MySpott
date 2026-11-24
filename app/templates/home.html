@@ -1,6 +1,35 @@
 {% extends "base.html" %}
+{% block title %}MySpott &middot; Find your spot{% endblock %}
 {% block content %}
-  <h1>MySpott</h1>
-  <p>MySpott is running.</p>
-  <p>Find homes for rent with exact map locations and clear house rules. Property listings are coming soon.</p>
+  <section class="hero">
+    <h1>Find your spot</h1>
+    <p class="hero__lead">Homes for rent with exact map locations, clear house rules and honest photos. For anyone looking for a place to live.</p>
+    <div class="hero__actions">
+      {% if current_user.is_authenticated %}
+        <span class="badge badge-highlight">Listings are coming soon</span>
+      {% else %}
+        <a class="btn btn-primary" href="{{ url_for('auth.register') }}">Create a free account</a>
+        <a class="btn btn-secondary" href="{{ url_for('auth.login') }}">Log in</a>
+      {% endif %}
+    </div>
+  </section>
+
+  <section aria-labelledby="built-for-heading">
+    <h2 id="built-for-heading">What we are building</h2>
+    <p class="text-muted">MySpott is growing step by step. Here is what it is being built for.</p>
+    <div class="grid-3">
+      <div class="card">
+        <h3>Exact locations</h3>
+        <p>See the real spot on a map, not just a vague area.</p>
+      </div>
+      <div class="card">
+        <h3>Clear house rules</h3>
+        <p>Visitors, pets, curfew and more, listed before you pick up the phone.</p>
+      </div>
+      <div class="card">
+        <h3>Honest photos</h3>
+        <p>Photos are checked for quality, so what you see is what you get.</p>
+      </div>
+    </div>
+  </section>
 {% endblock %}
