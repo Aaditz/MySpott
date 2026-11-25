@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% from "components/ui.html" import empty_state, property_card, skeleton_card, confirm_form with context %}
+{% block title %}Style guide &middot; MySpott{% endblock %}
+{% block head_extra %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+  <h1>MySpott style guide</h1>
+  <p class="text-muted">Every building block of the design on one page. Only available while developing.</p>
+
+  <section class="styleguide-section" aria-labelledby="sg-colours">
+    <h2 id="sg-colours">Colours</h2>
+    <div class="swatch-grid">
+      <div><div class="swatch swatch--primary"></div><p>Primary</p></div>
+      <div><div class="swatch swatch--primary-hover"></div><p>Primary hover</p></div>
+      <div><div class="swatch swatch--primary-tint"></div><p>Primary tint</p></div>
+      <div><div class="swatch swatch--highlight"></div><p>Highlight</p></div>
+      <div><div class="swatch swatch--ink"></div><p>Text</p></div>
+      <div><div class="swatch swatch--muted"></div><p>Muted text</p></div>
+      <div><div class="swatch swatch--page"></div><p>Page</p></div>
+      <div><div class="swatch swatch--surface"></div><p>Surface</p></div>
+      <div><div class="swatch swatch--border"></div><p>Border</p></div>
+      <div><div class="swatch swatch--success"></div><p>Success</p></div>
+      <div><div class="swatch swatch--warning"></div><p>Warning</p></div>
+      <div><div class="swatch swatch--danger"></div><p>Danger</p></div>
+    </div>
+  </section>
+
+  <section class="styleguide-section" aria-labelledby="sg-type">
+    <h2 id="sg-type">Type</h2>
+    <h1>Heading 1: Find your spot</h1>
+    <h2>Heading 2: Homes near you</h2>
+    <h3>Heading 3: 1 BHK apartment</h3>
+    <p>Body text. Homes for rent with exact map locations, clear house rules and honest photos.</p>
+    <p class="text-muted">Muted text for hints and secondary information.</p>
+  </section>
+
+  <section class="styleguide-section" aria-labelledby="sg-buttons">
+    <h2 id="sg-buttons">Buttons</h2>
+    <div class="styleguide-row">
+      <a class="btn btn-primary" href="#sg-buttons">Primary</a>
+      <a class="btn btn-secondary" href="#sg-buttons">Secondary</a>
+      <a class="btn btn-ghost" href="#sg-buttons">Ghost</a>
+      <a class="btn btn-danger" href="#sg-buttons">Danger</a>
+      <a class="btn btn-primary btn-sm" href="#sg-buttons">Small</a>
+      <button type="button" class="btn btn-primary" disabled>Disabled</button>
+    </div>
+  </section>
+
+  <section class="styleguide-section" aria-labelledby="sg-fields">
+    <h2 id="sg-fields">Form fields</h2>
+    <div class="card styleguide-form">
+      <div class="field">
+        <label for="sg-email">Email address</label>
+        <input type="email" id="sg-email" value="name@example.com">
+        <p class="field__hint">We only use this to log you in.</p>
+      </div>
+      <div class="field">
+        <label for="sg-password">Password with an error</label>
+        <input type="password" id="sg-password" value="short" aria-invalid="true" aria-describedby="sg-password-error">
+        <p class="field__error" id="sg-password-error">Your password must be at least 8 characters long.</p>
+      </div>
+      <div class="field">
+        <label for="sg-disabled">Disabled field</label>
+        <input type="text" id="sg-disabled" value="Cannot be changed" disabled>
+      </div>
+    </div>
+  </section>
+
+  <section class="styleguide-section" aria-labelledby="sg-messages">
+    <h2 id="sg-messages">Messages</h2>
+    <div class="flash info" role="status" data-dismissible><p class="flash__text">Information: we sent you a link.</p><button type="button" class="flash__close" data-dismiss aria-label="Dismiss message">&times;</button></div>
+    <div class="flash success" role="status" data-dismissible><p class="flash__text">Success: your changes were saved.</p><button type="button" class="flash__close" data-dismiss aria-label="Dismiss message">&times;</button></div>
+    <div class="flash warning" role="status" data-dismissible><p class="flash__text">Warning: please confirm your email address.</p><button type="button" class="flash__close" data-dismiss aria-label="Dismiss message">&times;</button></div>
+    <div class="flash error" role="status" data-dismissible><p class="flash__text">Error: we could not save that.</p><button type="button" class="flash__close" data-dismiss aria-label="Dismiss message">&times;</button></div>
+    <div class="form-alert" role="alert">Form error summary: please check the fields marked below.</div>
+  </section>
+
+  <section class="styleguide-section" aria-labelledby="sg-badges">
+    <h2 id="sg-badges">Badges and tags</h2>
+    <div class="styleguide-row">
+      <span class="badge">Default</span>
+      <span class="badge badge-highlight">New</span>
+      <ul class="tag-list"><li class="tag">Furnished</li><li class="tag">Parking</li><li class="tag">Pets allowed</li></ul>
+    </div>
+  </section>
+
+  <section class="styleguide-section" aria-labelledby="sg-cards">
+    <h2 id="sg-cards">Cards and states</h2>
+    <div class="grid-3">
+      {{ property_card("1 BHK apartment", "₹18,500", "Kothanur, Bengaluru", ["Furnished", "Parking", "Pets allowed"], "New") }}
+      {{ empty_state("Nothing here yet", "When you save a home, it will show up here.", "#sg-cards", "Browse homes") }}
+      {{ skeleton_card() }}
+    </div>
+  </section>
+
+  <section class="styleguide-section" aria-labelledby="sg-dialog">
+    <h2 id="sg-dialog">Confirmation dialog</h2>
+    <p class="text-muted">Press the button: a dialog asks first. Cancel is selected by default, Escape closes it.</p>
+    {{ confirm_form(url_for('dev.demo_delete'), "This is only a demonstration. Nothing will be deleted.", "Delete demo listing", "Delete this listing?") }}
+  </section>
+{% endblock %}

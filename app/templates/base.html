@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block head_extra %}{% endblock %}
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -59,7 +60,10 @@
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% for category, message in messages %}
-        <p class="flash {{ category }}" role="status">{{ message }}</p>
+        <div class="flash {{ category }}" role="status" data-dismissible>
+          <p class="flash__text">{{ message }}</p>
+          <button type="button" class="flash__close" data-dismiss aria-label="Dismiss message">&times;</button>
+        </div>
       {% endfor %}
     {% endwith %}
   </div>
@@ -71,5 +75,16 @@
   <footer class="site-footer">
     <div class="container">MySpott &middot; Find your spot</div>
   </footer>
+
+  <dialog class="dialog" id="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+    <form method="dialog" class="dialog__panel">
+      <h2 class="dialog__title" id="confirm-title">Are you sure?</h2>
+      <p class="dialog__message" id="confirm-message"></p>
+      <div class="dialog__actions">
+        <button type="submit" value="cancel" class="btn btn-secondary" autofocus>Cancel</button>
+        <button type="submit" value="confirm" class="btn btn-danger" data-confirm-accept>Confirm</button>
+      </div>
+    </form>
+  </dialog>
 </body>
 </html>

@@ -1,0 +1,60 @@
+{# Reusable pieces. Import them like this (the words "with context" matter: the confirm form
+   needs the page's security token):
+   {% from "components/ui.html" import empty_state, property_card, skeleton_card, confirm_form with context %} #}
+
+{% macro pin_icon() %}
+<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+  <circle cx="12" cy="9.5" r="6.5" fill="currentColor"/>
+  <path d="M6.9 13.4 12 22.5l5.1-9.1z" fill="currentColor"/>
+  <circle cx="12" cy="9.5" r="2.5" fill="#FFFFFF"/>
+</svg>
+{% endmacro %}
+
+{% macro empty_state(title, text, action_url=None, action_label=None) %}
+<div class="card empty-state">
+  <span class="empty-state__icon">{{ pin_icon() }}</span>
+  <h2 class="empty-state__title">{{ title }}</h2>
+  <p>{{ text }}</p>
+  {% if action_url %}<p><a class="btn btn-primary" href="{{ action_url }}">{{ action_label }}</a></p>{% endif %}
+</div>
+{% endmacro %}
+
+{% macro skeleton_card() %}
+<div class="card skeleton-card" role="status">
+  <span class="visually-hidden">Loading&hellip;</span>
+  <div class="skeleton skeleton-card__image" aria-hidden="true"></div>
+  <div class="skeleton skeleton-line skeleton-line--wide" aria-hidden="true"></div>
+  <div class="skeleton skeleton-line" aria-hidden="true"></div>
+  <div class="skeleton skeleton-line skeleton-line--short" aria-hidden="true"></div>
+</div>
+{% endmacro %}
+
+{% macro property_card(title, price_text, locality, tags=[], badge=None, url="#") %}
+<article class="card property-card">
+  <a class="property-card__link" href="{{ url }}">
+    <div class="property-card__image">
+      {{ pin_icon() }}
+      {% if badge %}<span class="badge badge-highlight property-card__badge">{{ badge }}</span>{% endif %}
+    </div>
+    <div class="property-card__body">
+      <p class="property-card__price">{{ price_text }} <span>/ month</span></p>
+      <h3 class="property-card__title">{{ title }}</h3>
+      <p class="property-card__place">{{ locality }}</p>
+      {% if tags %}
+        <ul class="tag-list">
+          {% for tag in tags %}<li class="tag">{{ tag }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </a>
+</article>
+{% endmacro %}
+
+{# A button that asks "are you sure?" before sending. Without JavaScript it sends straight away,
+   so the server must never rely on this question for safety. #}
+{% macro confirm_form(action, message, button_label, title="Are you sure?", tone="danger") %}
+<form method="post" action="{{ action }}" class="inline" data-confirm="{{ message }}" data-confirm-title="{{ title }}" data-confirm-label="{{ button_label }}" data-confirm-tone="{{ tone }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button type="submit" class="btn {% if tone == 'primary' %}btn-primary{% else %}btn-danger{% endif %} btn-sm">{{ button_label }}</button>
+</form>
+{% endmacro %}

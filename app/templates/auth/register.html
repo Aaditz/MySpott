@@ -1,28 +1,57 @@
 {% extends "base.html" %}
-{% block title %}Create your account · MySpott{% endblock %}
+{% block title %}Create your account &middot; MySpott{% endblock %}
 {% block content %}
-  <h1>Create your account</h1>
-  <form method="post" action="{{ url_for('auth.register') }}">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="auth-card card">
+    <h1>Create your account</h1>
+    <p class="text-muted">Find a home or list one. It only takes a minute.</p>
 
-    <label for="name">Your name</label>
-    <input type="text" id="name" name="name" value="{{ form.name or '' }}" autocomplete="name" required maxlength="100">
-    {% if errors.name %}<p class="error">{{ errors.name }}</p>{% endif %}
+    {% if errors %}
+      <div class="form-alert" role="alert">Please check the fields marked below.</div>
+    {% endif %}
 
-    <label for="email">Email address</label>
-    <input type="email" id="email" name="email" value="{{ form.email or '' }}" autocomplete="email" required maxlength="254">
-    {% if errors.email %}<p class="error">{{ errors.email }}</p>{% endif %}
+    <form method="post" action="{{ url_for('auth.register') }}" data-submit-once data-loading-text="Creating account…">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-    <label for="password">Password (at least 8 characters)</label>
-    <input type="password" id="password" name="password" autocomplete="new-password" required minlength="8" maxlength="128">
-    {% if errors.password %}<p class="error">{{ errors.password }}</p>{% endif %}
+      <div class="field">
+        <label for="name">Your name</label>
+        <input type="text" id="name" name="name" value="{{ form.name or '' }}" autocomplete="name" required maxlength="100"{% if errors.name %} aria-invalid="true" aria-describedby="name-error"{% endif %}>
+        {% if errors.name %}<p class="field__error" id="name-error">{{ errors.name }}</p>{% endif %}
+      </div>
 
-    <label>I am</label>
-    <label class="choice"><input type="radio" name="role" value="seeker" {% if form.role != 'owner' %}checked{% endif %}> Looking for a home</label>
-    <label class="choice"><input type="radio" name="role" value="owner" {% if form.role == 'owner' %}checked{% endif %}> An owner listing a home</label>
-    {% if errors.role %}<p class="error">{{ errors.role }}</p>{% endif %}
+      <div class="field">
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" value="{{ form.email or '' }}" autocomplete="email" autocapitalize="off" spellcheck="false" required maxlength="254"{% if errors.email %} aria-invalid="true" aria-describedby="email-error"{% endif %}>
+        {% if errors.email %}<p class="field__error" id="email-error">{{ errors.email }}</p>{% endif %}
+      </div>
 
-    <p><button type="submit">Create account</button></p>
-  </form>
-  <p>Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="password-field">
+          <input type="password" id="password" name="password" autocomplete="new-password" required minlength="8" maxlength="128" aria-describedby="password-hint{% if errors.password %} password-error{% endif %}"{% if errors.password %} aria-invalid="true"{% endif %}>
+          <button type="button" class="password-toggle" data-password-toggle aria-controls="password" aria-label="Show password" aria-pressed="false">Show</button>
+        </div>
+        <p class="field__hint" id="password-hint">At least 8 characters.</p>
+        {% if errors.password %}<p class="field__error" id="password-error">{{ errors.password }}</p>{% endif %}
+      </div>
+
+      <fieldset class="option-cards">
+        <legend>I am</legend>
+        <div class="option-cards__list">
+          <label class="option-card" for="role-seeker">
+            <input type="radio" id="role-seeker" name="role" value="seeker" {% if form.role != 'owner' %}checked{% endif %}>
+            <span><strong>Looking for a home</strong><span class="text-muted">Search and save places to rent.</span></span>
+          </label>
+          <label class="option-card" for="role-owner">
+            <input type="radio" id="role-owner" name="role" value="owner" {% if form.role == 'owner' %}checked{% endif %}>
+            <span><strong>An owner listing a home</strong><span class="text-muted">Add homes for people to find.</span></span>
+          </label>
+        </div>
+        {% if errors.role %}<p class="field__error">{{ errors.role }}</p>{% endif %}
+      </fieldset>
+
+      <button type="submit" class="btn btn-primary btn-block">Create account</button>
+    </form>
+
+    <p class="auth-footer">Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+  </div>
 {% endblock %}

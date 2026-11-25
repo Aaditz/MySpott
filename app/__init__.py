@@ -79,10 +79,13 @@ def _register_blueprints(app):
     from .api.v1 import api_v1
     from .web import web
     from .web.auth import auth_bp
+    from .web.dev import dev_bp, dev_pages_enabled
 
     app.register_blueprint(api_v1)
     app.register_blueprint(web)
     app.register_blueprint(auth_bp)
+    if dev_pages_enabled(app.config):
+        app.register_blueprint(dev_bp)  # the style guide: never available in production
 
 
 def _register_error_handlers(app):
