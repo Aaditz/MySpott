@@ -37,3 +37,15 @@
 - "Distance to the college" becomes "distance to a place you choose" (workplace, college, metro
   station, any point on the map). Planned for Phase 9, shown as straight-line distance and labelled that way.
 - Roles stay seeker / owner / admin. "Seeker" means anyone looking for a home.
+
+
+
+## Frontend (added in Phase 4)
+- Server-rendered pages (Jinja2) with one stylesheet and one small script; no frontend framework.
+- `app/static/css/app.css` holds the design tokens (variables) and every style; `app/static/js/app.js`
+  adds progressive enhancements through `data-` attributes (see docs/DESIGN_GUIDE.md).
+- `app/templates/base.html` is the page frame. Reusable pieces are macros in `components/ui.html`
+  (import them "with context" so forms get the security token).
+- `/dev/style-guide` shows every component; it is only registered while developing or testing.
+- No inline styles or scripts anywhere, which allows a strict content security policy in Phase 12.
+- Mobile apps (Phase 13) reuse the same colour, type and spacing values.

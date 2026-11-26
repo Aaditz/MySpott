@@ -3,14 +3,13 @@
 - [x] Phase 0: SRS review and plan
 - [x] Phase 1: Foundation
 - [x] Phase 2: Database foundation
-- [x] Phase 3: Authentication (sign up, log in/out, email confirmation, password reset, roles,
-      access checks, admin tools, rate limiting)
-- [ ] Phase 4: Web UI foundation (design system, layout, navigation, restyled auth pages)
+- [x] Phase 3: Authentication
+- [x] Phase 4: Web UI foundation (design system, page frame, account pages, component kit)
 - [ ] Phase 5: Property core (models, create/edit/pause/publish, owner dashboard)
 - [ ] Phase 6: Images (upload, validation, compression, thumbnails, cloud storage)
 - [ ] Phase 7: Facilities and house rules
 - [ ] Phase 8: Discovery (list, filters, sorting, pagination, detail page)
-- [ ] Phase 9: Maps and location (pin picker, map view, distance, nearby places)
+- [ ] Phase 9: Maps and location (pin picker, map view, "distance to a place you choose", nearby places)
 - [ ] Phase 10: Contact reveal (protected WhatsApp endpoint, rate limiting)
 - [ ] Phase 11: AI checks and moderation (quality, duplicates, risk flags, reports, admin)
 - [ ] Phase 12: Hardening and web release (see list below)
@@ -24,9 +23,10 @@
 - Send emails in the background so the reset form answers equally fast for every address
 - Choose and test a real email service over SMTP
 - Pin exact versions of every package in requirements.txt
-- Security headers (content security policy etc.), backups, monitoring
+- Self-host the Inter font and add a content security policy (possible now: no inline scripts or styles)
+- Cache-busting for the stylesheet and script, security headers, backups, monitoring
 
 ## Open decisions
-- Brand look: colours, logo, tone (needed at the start of Phase 4)
+- Which details an owner must enter for a listing (decided at the start of Phase 5)
 - Image storage provider, hosting provider
-- Default map area for first-time visitors, and how "distance to a place you choose" works (Phase 9)
+- Default map area for first-time visitors (Phase 9)

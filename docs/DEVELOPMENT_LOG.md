@@ -17,3 +17,18 @@
     them after each test;
   - the sign-up rate-limit test needed the same reset for every browser it creates.
 - End of phase: 189 tests passing, including one test that walks through the whole account journey.
+
+## Phase 4: Web UI foundation
+- Decided MySpott is for anyone looking to rent, not only students, and not tied to one college.
+- Agreed the look (teal and amber, Inter, map-pin logo) and built our own small stylesheet with
+  variables instead of Bootstrap, so the mobile apps can reuse the same values.
+- Built the page frame (header, phone menu, skip link, footer), restyled the home page and error pages.
+- Redesigned the account pages: cards, labelled fields with linked errors, show/hide password,
+  "please wait" buttons that ignore double clicks and recover when the Back button is used.
+- Built the component kit: closable messages, a confirmation dialog, empty and loading states, the
+  property card, and a development-only style guide page.
+- Added tests: colour approvals and contrast, page frame, account page structure, component kit, and
+  rules checked across every template.
+- Issues met and fixed: a test helper created the same test user twice; one test run hung because an
+  earlier run had left a database connection open (clearing connections to the test database fixed it).
+- End of phase: 223 tests passing.

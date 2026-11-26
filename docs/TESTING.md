@@ -10,27 +10,32 @@ for every test, so never point TEST_DATABASE_URL at a development or production 
 The app refuses to run tests if the database name does not end with `_test`.
 The full run takes a little over a minute, because the rate-limit tests make many real attempts.
 
+If a run seems stuck: stop it (Ctrl + C), then close leftover connections to the test database:
+
+    SELECT pg_terminate_backend(pid) FROM pg_stat_activity
+    WHERE datname = 'myspott_test' AND pid <> pg_backend_pid();
+
 ## Results log
 | Phase | Test | Result |
 |-------|------|--------|
 | 1 | Manual: home page and /api/v1/health | Passed |
-| 2 | Automated: config, health, User model (24 tests); migrations up, down, up | Passed |
-| 3 | Automated: login support, email tokens, account service, validation, email sending, pages, access control, admin tools, rate limits, full account journey (189 tests in total) | Passed |
-| 3 | Manual: sign up, confirm email, log out, wrong password, forgot/reset password, other device logged out after reset, friendly 404 | Passed |
+| 2 | Automated: config, health, User model; migrations up, down, up | Passed |
+| 3 | Automated: account service, pages, access control, admin tools, rate limits, account journey; manual walkthrough | Passed |
+| 4 | Automated: design tokens, page frame, account page design, component kit, template rules (223 tests in total) | Passed |
+| 4 | Manual: visual check at desktop, tablet and phone width, keyboard, zoom | Pending: change to "Passed" once done |
 
 ## What the automated tests cover
-- Configuration: environments, secrets, database, email, site address and rate-limit settings
-- Database models: User and EmailToken constraints, hashed passwords, lowercase emails
-- Account service: registration rules, login checks, one-time tokens, resend waiting time, password reset
-- Pages: sign up, log in, log out, confirmation, resend, forgot and reset password, CSRF refusals,
-  safe redirects, generic messages that reveal nothing about who has an account
-- Access control: owner/admin/confirmed-only pages, 403 and 404 pages (HTML and JSON)
-- Sessions: password change and suspension end existing logins
-- Command line: create-admin and promote-admin
-- Rate limits: login, sign-up, reset, resend, and the 429 page
+- Configuration, database models, account service, pages, access control, sessions, command line, rate limits
+- Design system: approved colours, readable text on every background, every variable defined
+- Page frame: header, menu, skip link, footer, design files served
+- Account pages: labelled fields, errors linked to fields, show/hide password, double-click protection,
+  role choice, no inline styles or scripts
+- Component kit: dialog on every page, closable messages, style guide, safe macros, development-only rule
+- Template rules across every template: no inline styles or scripts, security token in every POST form,
+  every button typed, every image with alt text
 - One test walking through the whole account journey
 
 ## Not covered yet
 - Real email delivery over SMTP (only tested against a stand-in server)
 - Behaviour behind a hosting proxy and with a shared rate-limit store (deployment, Phase 12)
-- Visual layout (Phase 4 onwards)
+- The look itself: it is checked by eye, using the style guide page
